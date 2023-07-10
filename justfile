@@ -7,3 +7,7 @@ docker-build:
 # start test loop with cargo watch
 watch:
     cargo watch -x test
+
+# start the development stack
+dev:
+    docker compose up --build
