@@ -1,0 +1,4 @@
+bin:
+  name: govee-web
+  repo:
+    uri: https://github.com/mattcl/govee-web.git
