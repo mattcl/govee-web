@@ -1,4 +1,5 @@
-bin:
+service:
   name: govee-web
   repo:
     uri: https://github.com/mattcl/govee-web.git
+  image-repo: mattcl/govee-web
