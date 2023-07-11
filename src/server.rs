@@ -4,7 +4,11 @@ use tower_http::trace::{self, TraceLayer};
 use tracing::Level;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-use crate::{controllers::DeviceController, routes::devices, settings::Settings};
+use crate::{
+    controllers::DeviceController,
+    routes::{devices, health},
+    settings::Settings,
+};
 
 #[derive(Clone, FromRef)]
 pub struct AppState {
@@ -38,9 +42,14 @@ pub async fn serve(settings: Settings) -> Result<()> {
 }
 
 fn router(state: AppState) -> Router {
-    Router::new().nest("/api/v1", devices::routes(state)).layer(
-        TraceLayer::new_for_http()
-            .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
-            .on_response(trace::DefaultOnResponse::new().level(Level::INFO)),
-    )
+    Router::new()
+        .nest("/api/v1", devices::routes(state.clone()))
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
+                .on_response(trace::DefaultOnResponse::new().level(Level::INFO)),
+        )
+        // define this after the tracing layer so we don't get spans for the
+        // health check endpoint
+        .merge(health::routes(state))
 }

@@ -10,7 +10,6 @@ services:
         ancalagon_token: "${ANCALAGON_TOKEN}"
     environment:
       - GOVEE_PORT=3000
-      - GOVEE_BIND_ADDR=0.0.0.0
       - GOVEE_API_KEY=${GOVEE_API_KEY}
       - GOVEE_REDIS_URI=redis://redis:6379
     depends_on:

@@ -55,6 +55,10 @@ impl DeviceController {
 
         Err(Error::DeviceNotFound(device.into()))
     }
+
+    pub async fn health_check(&self) -> Result<()> {
+        self.store.health_check().await
+    }
 }
 
 impl TryFrom<&Settings> for DeviceController {

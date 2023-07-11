@@ -5,6 +5,7 @@ use redis::{aio::Connection, AsyncCommands, Client, RedisResult};
 use crate::error::Result;
 
 const DEVICES_KEY: &str = "govee_devices";
+const HEALTH_KEY: &str = "govee_health_check";
 
 #[derive(Debug, Clone)]
 pub struct RedisStore {
@@ -55,6 +56,19 @@ impl RedisStore {
 
             Ok(devices)
         }
+    }
+
+    pub async fn health_check(&self) -> Result<()> {
+        let mut conn = self
+            .connection()
+            .await
+            .context("Failed to get redis connection")?;
+
+        conn.set(HEALTH_KEY, "hello")
+            .await
+            .context("Failed to set health key")?;
+
+        Ok(())
     }
 
     async fn connection(&self) -> RedisResult<Connection> {
