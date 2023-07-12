@@ -30,7 +30,10 @@ impl IntoResponse for Error {
                 format!("Unknown device '{}'", device),
             )
                 .into_response(),
-            _ => (StatusCode::INTERNAL_SERVER_ERROR, "UNHANDLED_SERVER_ERROR").into_response(),
+            _ => {
+                tracing::error!("{}", self.to_string());
+                (StatusCode::INTERNAL_SERVER_ERROR, "UNHANDLED_SERVER_ERROR").into_response()
+            }
         }
     }
 }
