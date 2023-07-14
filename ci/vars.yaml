@@ -3,3 +3,9 @@ service:
   repo:
     uri: https://github.com/mattcl/govee-web.git
   image-repo: mattcl/govee-web
+  image-repo-api: https://hub.docker.com/v2/repositories/mattcl/govee-web
+
+gitops:
+  repo:
+    uri: git@github.com:mattcl/hl-govee-web
+  overlay: installs/default
