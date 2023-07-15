@@ -1,5 +1,7 @@
 use axum::{http::StatusCode, response::IntoResponse};
 
+use crate::repositories::DeviceRepoError;
+
 pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug, thiserror::Error)]
@@ -9,6 +11,9 @@ pub enum Error {
 
     #[error("Unknown device '{0}'")]
     DeviceNotFound(String),
+
+    #[error(transparent)]
+    RedisDeviceRepo(#[from] DeviceRepoError),
 
     #[error(transparent)]
     GoveeClient(#[from] govee_rs::client::GoveeError),

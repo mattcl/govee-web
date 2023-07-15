@@ -8,18 +8,18 @@ use govee_rs::{
 use crate::{
     error::{Error, Result},
     settings::Settings,
-    store::RedisStore,
+    repositories::{DynDeviceRepo, RedisDeviceRepo},
 };
 
 #[derive(Clone)]
 pub struct DeviceController {
-    store: Arc<RedisStore>,
+    repo: DynDeviceRepo,
     client: Arc<GoveeClient>,
 }
 
 impl DeviceController {
     pub async fn devices(&self) -> Result<Devices> {
-        self.store.devices(&self.client).await
+        Ok(self.repo.list(&self.client).await?)
     }
 
     pub async fn state(&self, device: &str) -> Result<DeviceState> {
@@ -57,7 +57,7 @@ impl DeviceController {
     }
 
     pub async fn health_check(&self) -> Result<()> {
-        self.store.health_check().await
+        Ok(self.repo.health_check().await?)
     }
 }
 
@@ -67,11 +67,11 @@ impl TryFrom<&Settings> for DeviceController {
     fn try_from(settings: &Settings) -> std::result::Result<Self, Self::Error> {
         let govee_client = Arc::new(settings.govee_client()?);
         let redis_client = settings.redis_client()?;
-        let redis_store = Arc::new(RedisStore::from_client(redis_client, settings.redis_ttl()));
+        let redis_store = Arc::new(RedisDeviceRepo::from_client(redis_client, settings.redis_ttl())) as DynDeviceRepo;
 
         Ok(Self {
             client: govee_client,
-            store: redis_store,
+            repo: redis_store,
         })
     }
 }
