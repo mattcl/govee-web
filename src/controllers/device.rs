@@ -7,8 +7,8 @@ use govee_rs::{
 
 use crate::{
     error::{Error, Result},
-    settings::Settings,
     repositories::{DynDeviceRepo, RedisDeviceRepo},
+    settings::Settings,
 };
 
 #[derive(Clone)]
@@ -67,7 +67,10 @@ impl TryFrom<&Settings> for DeviceController {
     fn try_from(settings: &Settings) -> std::result::Result<Self, Self::Error> {
         let govee_client = Arc::new(settings.govee_client()?);
         let redis_client = settings.redis_client()?;
-        let redis_store = Arc::new(RedisDeviceRepo::from_client(redis_client, settings.redis_ttl())) as DynDeviceRepo;
+        let redis_store = Arc::new(RedisDeviceRepo::from_client(
+            redis_client,
+            settings.redis_ttl(),
+        )) as DynDeviceRepo;
 
         Ok(Self {
             client: govee_client,

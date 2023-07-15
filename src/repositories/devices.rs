@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use govee_rs::{GoveeClient, models::Devices};
+use govee_rs::{models::Devices, GoveeClient};
 #[cfg(test)]
 use mockall::{automock, predicate::*};
 use redis::{aio::Connection, AsyncCommands, Client, RedisError};
@@ -14,25 +14,25 @@ pub enum DeviceRepoError {
     #[error("Device repo health check failed")]
     HealthCheckError {
         #[source]
-        source: RedisError
+        source: RedisError,
     },
 
     #[error("Failed to get a redis connection")]
     ConnectionError {
         #[source]
-        source: RedisError
+        source: RedisError,
     },
 
     #[error("Failed attempting to get devices key from redis")]
     GetKeyError {
         #[source]
-        source: RedisError
+        source: RedisError,
     },
 
     #[error("Failed attempting to set devices key in redis")]
     SetKeyError {
         #[source]
-        source: RedisError
+        source: RedisError,
     },
 
     #[error(transparent)]
@@ -63,7 +63,10 @@ pub struct RedisDeviceRepo {
 
 impl RedisDeviceRepo {
     pub fn from_client(client: Client, ttl_seconds: usize) -> Self {
-        Self { client, ttl_seconds }
+        Self {
+            client,
+            ttl_seconds,
+        }
     }
 
     async fn connection(&self) -> Result<Connection, DeviceRepoError> {
@@ -79,9 +82,7 @@ impl DeviceRepo for RedisDeviceRepo {
     async fn list(&self, govee_client: &GoveeClient) -> Result<Devices, DeviceRepoError> {
         // try to get the devices from redis
         // if the key exists, just return the devices from the key
-        let mut conn = self
-            .connection()
-            .await?;
+        let mut conn = self.connection().await?;
 
         let v: Option<String> = conn
             .get(DEVICES_KEY)
@@ -93,12 +94,9 @@ impl DeviceRepo for RedisDeviceRepo {
             Ok(serde_json::from_str(devices_str)?)
         } else {
             tracing::debug!("Redis store miss for '{}'", DEVICES_KEY);
-            let devices = govee_client
-                .devices()
-                .await?;
+            let devices = govee_client.devices().await?;
 
-            let devices_str =
-                serde_json::to_string(&devices)?;
+            let devices_str = serde_json::to_string(&devices)?;
 
             conn.set_ex(DEVICES_KEY, &devices_str, self.ttl_seconds)
                 .await
@@ -109,9 +107,7 @@ impl DeviceRepo for RedisDeviceRepo {
     }
 
     async fn health_check(&self) -> Result<(), DeviceRepoError> {
-        let mut conn = self
-            .connection()
-            .await?;
+        let mut conn = self.connection().await?;
 
         conn.set(HEALTH_KEY, "hello")
             .await
