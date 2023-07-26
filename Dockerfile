@@ -1,4 +1,4 @@
-FROM rust:1.70-alpine as release
+FROM rust:1.71-alpine as release
 ARG ancalagon_index
 ARG ancalagon_token
 ENV CARGO_REGISTRIES_ANCALAGON_INDEX=${ancalagon_index}
