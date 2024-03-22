@@ -1,10 +1,10 @@
 [package]
 name = "govee-web"
-version = "0.1.6"
+version = "0.1.7"
 edition = "2021"
 authors = ["Matt Chun-Lum <matt@questionable.engineering>"]
 publish = ["ancalagon"]
-rust-version = "1.70.0"
+rust-version = "1.74"
 description = "A dumb web controller for some govee light strips"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
